@@ -1,4 +1,8 @@
-LeaderElection$1.class
-Main.class
 Configuration.class
-LeaderElection.class
+Application$1.class
+cluster/management/LeaderElection$1.class
+cluster/management/LeaderElection.class
+cluster/management/DataCenterRegistry.class
+cluster/management/ReplicaRegistrationHelper.class
+ReplicaRegistrationHelperImpl.class
+Application.class
