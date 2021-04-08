@@ -12,12 +12,21 @@ import java.util.List;
 
 public class LeaderElection implements Watcher {
 
+    // Configuration data
     private static final String ZOOKEEPER_ADDRESS = "localhost:2181";
     private static final String ELECTION_NAMESPACE = "/election";
     private static final int SESSION_TIMEOUT = 3000;
+    private final String failOverMethod;
 
     private ZooKeeper zooKeeper;
-    private String currentZnodeName;
+
+    // Current node information
+    private String currentReplicaName;
+
+
+    public LeaderElection(String failOverMethod) {
+        this.failOverMethod = failOverMethod;
+    }
 
 
     // Required to wait around till Zookeeper's worker threads finish their job
@@ -33,36 +42,54 @@ public class LeaderElection implements Watcher {
         // TODO: Need to figure out a way to store data in bytes later
         String znodeFullPath = zooKeeper.create(znodePrefix, new byte[]{}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
 
-        System.out.println("znode name " + znodeFullPath);
-        this.currentZnodeName = znodeFullPath.replace("/election/", "");
+        System.out.println("Replica name " + znodeFullPath);
+        this.currentReplicaName = znodeFullPath.replace("/election/", "");
     }
 
     // Electing the leader - Can be re-elected by calling whenever a node goes down
     public void electLeader() throws KeeperException, InterruptedException {
         List<String> replicas = zooKeeper.getChildren(ELECTION_NAMESPACE, false);
-        Stat leaderExists = null;
-        String leader = null;
+        Stat watchedNodeExists = null;
+        String leaderNode = null;
 
         // Main leader election logic - Get the smallest replica number
-        while (leaderExists == null) {
+        while (watchedNodeExists == null) {
+            // Sort replicas by id
             Collections.sort(replicas);
-            leader = replicas.get(0);
+            leaderNode = replicas.get(0);
 
             // Detecting the leader database
-            if (leader.equals(currentZnodeName)) {
+            if (leaderNode.equals(currentReplicaName)) {
                 System.out.println("I am the leader");
                 return;
             } else {
                 // Followers announce the leader that they are watching
                 System.out.println("I am a follower");
-                leaderExists = zooKeeper.exists(ELECTION_NAMESPACE + "/" + leader, this);
-                if (leaderExists == null) {
-                    System.out.println("Leader has died. Volunteering to be leader...");
-                }
+                watchedNodeExists = maybeFailOver(replicas);
             }
         }
 
-        System.out.println("Watching leader: " + leader + "...");
+    }
+
+    // The watched node can be the leader or each follower watching its predecessor
+    private Stat maybeFailOver(List<String> replicas) throws KeeperException, InterruptedException {
+        String leaderNode = replicas.get(0);
+        Stat watchedNodeExists = null;
+        String watchedNodeName = null;
+
+        if (this.failOverMethod.equals("watch_leader")) {
+            watchedNodeExists = zooKeeper.exists(ELECTION_NAMESPACE + "/" + leaderNode, this);
+            watchedNodeName = leaderNode;
+            return watchedNodeExists;
+        } else if (this.failOverMethod.equals("watch_circle")) {
+            int predecessorIndex = Collections.binarySearch(replicas, this.currentReplicaName) - 1;
+            String predecessorNodeName = replicas.get(predecessorIndex);
+            watchedNodeName = predecessorNodeName;
+            watchedNodeExists = zooKeeper.exists(ELECTION_NAMESPACE + "/" + predecessorNodeName, this);
+        }
+
+        System.out.println("Watching Node: " + watchedNodeName + "...");
+        return watchedNodeExists;
     }
 
     // This is the method where we watch for events from Zookeeper,
@@ -72,10 +99,10 @@ public class LeaderElection implements Watcher {
         switch (watchedEvent.getType()) {
             case None: {
                 if (watchedEvent.getState() == Event.KeeperState.SyncConnected) {
-                    System.out.println("Success: Connected to zookeeper");
+                    System.out.println("Success: Connected to zookeeper!");
                 } else {
                     synchronized (this.zooKeeper) {
-                        System.out.println("Disconnected from zookeeper event");
+                        System.out.println("Disconnected from zookeeper!");
                         this.zooKeeper.notifyAll();
                     }
                 }
@@ -103,29 +130,16 @@ public class LeaderElection implements Watcher {
                 break;
             case PersistentWatchRemoved:
                 break;
+            default:
+                throw new IllegalStateException("Unexpected event: " + watchedEvent.getType());
         }
     }
 
-    private void connectToZookeeper() throws IOException {
-        this.zooKeeper = new ZooKeeper(ZOOKEEPER_ADDRESS, SESSION_TIMEOUT, this) ;
+    public void connectToZookeeper() throws IOException {
+        this.zooKeeper = new ZooKeeper(ZOOKEEPER_ADDRESS, SESSION_TIMEOUT, this);
     }
 
-    // The main method to set the stage
-    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
-
-        //Begin with creating replicas and electing a leader
-        LeaderElection leaderElection = new LeaderElection();
-        leaderElection.connectToZookeeper();
-        leaderElection.volunteerForLeadership();
-        leaderElection.electLeader();
-
-        // Now we need to wait on background threads for zookeeper to do its job
-        // Zookeeper will notifyALL later to us
-        leaderElection.run();
-        leaderElection.close();
-    }
-
-    private void close() throws InterruptedException {
+    public void close() throws InterruptedException {
         this.zooKeeper.close();
     }
 }
