@@ -1,6 +1,9 @@
 import cluster.management.DataCenterRegistry;
 import cluster.management.LeaderElection;
 import cluster.management.ReplicaRegistrationHelper;
+import cluster.management.ReplicaRegistrationHelperImpl;
+import config.Configuration;
+import networking.WebServer;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -16,7 +19,7 @@ public class Application implements Watcher {
 
     private static LeaderElection leaderElection;
     private static ZooKeeper zooKeeper = null;
-    private static int DEFAULT_PORT = 8080;
+    private static int DEFAULT_PORT = 9080;
 
     public static void main(String[] args) throws IOException, KeeperException, InterruptedException, ParseException {
         Application application = new Application();
@@ -30,6 +33,11 @@ public class Application implements Watcher {
         // Now register replicas with config setting for watching nodes
         int port = args.length == 1 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
         registerReplicas(failOverMethod, port);
+
+
+        // Now, setup the webserver to listen on the same port
+        WebServer webServer = new WebServer(port);
+        webServer.startServer();
 
         // Now run the application
         application.run();
@@ -51,7 +59,9 @@ public class Application implements Watcher {
     private static void registerReplicas(String failOverMethod, int port) throws IOException, KeeperException,
             InterruptedException {
         // First prepare enough information for replicas to register to the data center
-        DataCenterRegistry dataCenterRegistry = new DataCenterRegistry(zooKeeper);
+        DataCenterRegistry dataCenterRegistry = DataCenterRegistry.getInstance();
+        dataCenterRegistry.init(zooKeeper);
+
         ReplicaRegistrationHelper replicaRegistrationHelper = new ReplicaRegistrationHelperImpl(dataCenterRegistry, port);
 
         // Then connect to zookeeper

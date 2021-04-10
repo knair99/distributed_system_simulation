@@ -13,7 +13,7 @@ import java.util.List;
 
 public class LeaderElection implements Watcher {
 
-    // Configuration data
+    // config.Configuration data
     private static final String ELECTION_NAMESPACE = "/election";
     private final String failOverMethod;
     private final ReplicaRegistrationHelper replicaRegistrationHelper;

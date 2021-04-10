@@ -15,17 +15,26 @@ import java.util.List;
 public class DataCenterRegistry implements Watcher {
     private static final String DATA_CENTER_REGISTRY_NODE = "/data_center_registry";
 
-    private final ZooKeeper zooKeeper;
+    private static ZooKeeper zooKeeper;
     private String currentReplicaInfoNode = null;
     private List<String> allRegisteredReplicaAddresses = null;
+    private static DataCenterRegistry dataCenterRegistryInstance = null;
 
-    public DataCenterRegistry(ZooKeeper zooKeeper) {
+    public void init(ZooKeeper zooKeeper) {
         this.zooKeeper = zooKeeper;
         createDataCenterRegistry();
     }
 
+    public static DataCenterRegistry getInstance(){
+        if(dataCenterRegistryInstance == null){
+            dataCenterRegistryInstance = new DataCenterRegistry();
+            return dataCenterRegistryInstance;
+        }
+        return dataCenterRegistryInstance;
+    }
+
     // First create the data center registry znode (persistent)
-    private void createDataCenterRegistry() {
+    private static void createDataCenterRegistry() {
         try {
             if (zooKeeper.exists(DATA_CENTER_REGISTRY_NODE, false) == null) {
                 zooKeeper.create(DATA_CENTER_REGISTRY_NODE, new byte[]{}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
