@@ -64,10 +64,28 @@ public class LeaderElection implements Watcher {
                 System.out.println("I am a follower replica");
                 watchedNodeExists = maybeFailOver(replicas);
                 replicaRegistrationHelper.registerFollowerToCluster();
-                KafkaConsumer kafkaConsumer = (KafkaConsumer) AsyncReplicationEventConsumer.createKafkaConsumer();
-                AsyncReplicationEventConsumer.consumeMessages(kafkaConsumer);
+                registerKafkaConsumer();
             }
         }
+
+    }
+
+    private void registerKafkaConsumer() {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                KafkaConsumer kafkaConsumer = (KafkaConsumer) AsyncReplicationEventConsumer.createKafkaConsumer();
+                AsyncReplicationEventConsumer.consumeMessages(kafkaConsumer);
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread backgroundKafkaConsumerThread = new Thread(runnable);
+        backgroundKafkaConsumerThread.start();
 
     }
 

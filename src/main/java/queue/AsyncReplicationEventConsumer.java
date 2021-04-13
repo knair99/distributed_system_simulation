@@ -56,7 +56,6 @@ public class AsyncReplicationEventConsumer {
             }
 
             // do something with the records
-
             kafkaConsumer.commitAsync();
         }
     }

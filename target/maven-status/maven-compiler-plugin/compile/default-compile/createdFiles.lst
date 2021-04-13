@@ -6,6 +6,7 @@ cluster/management/LeaderElection.class
 networking/handlers/WriteRequestHandler.class
 networking/handlers/ResponseHandler.class
 cluster/management/ReplicaRegistrationHelper.class
+cluster/management/LeaderElection$2.class
 networking/handlers/ReadRequestHandler.class
 queue/AsyncReplicationEventProducer.class
 config/Configuration.class
