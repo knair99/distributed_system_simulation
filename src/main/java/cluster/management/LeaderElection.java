@@ -1,6 +1,7 @@
 package cluster.management;
 
 import config.Configuration;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -8,6 +9,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import queue.AsyncReplicationEventConsumer;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +64,8 @@ public class LeaderElection implements Watcher {
                 System.out.println("I am a follower replica");
                 watchedNodeExists = maybeFailOver(replicas);
                 replicaRegistrationHelper.registerFollowerToCluster();
+                KafkaConsumer kafkaConsumer = (KafkaConsumer) AsyncReplicationEventConsumer.createKafkaConsumer();
+                AsyncReplicationEventConsumer.consumeMessages(kafkaConsumer);
             }
         }
 

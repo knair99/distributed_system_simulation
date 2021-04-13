@@ -14,7 +14,7 @@ public class AsyncReplicationEventProducer {
 
     // You can have multiple, comma separated bootstrap servers
     public static final String BOOTSTRAP_SERVERS = "localhost:9092";
-    public static final String TOPIC = "new-sync-events";
+    public static final String TOPIC = "sync-events";
 
     public Producer<Long, String> createKafkaProducer(String bootstrapServers) {
         Properties properties = new Properties();
@@ -28,6 +28,7 @@ public class AsyncReplicationEventProducer {
     }
 
     public void publishMessages(int numberOfMessages, Producer<Long, String> kafkaProducer) throws ExecutionException, InterruptedException {
+        // Since we only have one partition now with a replication factor of 1
         int partition = 0;
 
         int i = 0;
@@ -36,11 +37,11 @@ public class AsyncReplicationEventProducer {
             String value = String.format("Async replication event %d", i);
             long timeStamp = System.currentTimeMillis();
 
-            //We can overload the ProducerRecord to remove the partition, and it will automatically hash range by key
+            // We can overload the ProducerRecord to remove the partition, and it will automatically hash range by key
             // (depending on number of partitions in the kafka server) - You can also remove the key and kafka will
             // round robin the value to different partitions
+            // Blocking debug call: RecordMetadata recordMetadata = kafkaProducer.send(record).get();
             ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, partition, timeStamp, key, value);
-//            RecordMetadata recordMetadata = kafkaProducer.send(record).get();
             kafkaProducer.send(record);
 
             System.out.println(String.format("Async record with (key: %s, value: %s), was sent to (partition: %d, " +
