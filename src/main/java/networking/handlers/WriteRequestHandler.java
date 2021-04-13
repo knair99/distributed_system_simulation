@@ -2,6 +2,7 @@ package networking.handlers;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
+import config.Configuration;
 import networking.SyncCoordinator;
 import networking.WebServer;
 
@@ -41,7 +42,11 @@ public class WriteRequestHandler {
         }
 
         // Depending on replication strategy, do sync alerting vs async alerting here
-        syncAlertFollowers();
+        if(Configuration.getInstance().getReplicationStrategy() == "sync") {
+            syncAlertFollowers();
+        } else {
+            asyncAlertFollowers();
+        }
 
         ResponseHandler.sendResponse(responseBytes, exchange);
     }
@@ -53,8 +58,9 @@ public class WriteRequestHandler {
     }
 
     private static void asyncAlertFollowers() {
+        System.out.println("Alerting followers asynchronously: ");
         SyncCoordinator syncCoordinator = new SyncCoordinator();
-        syncCoordinator.alertAllFollowersSync();
+        syncCoordinator.alertAllFollowersAsync();
     }
 
     // TODO: Persist into MongoDB, Identify self

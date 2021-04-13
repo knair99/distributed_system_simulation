@@ -9,14 +9,28 @@ import java.io.IOException;
 
 public class Configuration {
 
-    public JSONObject config;
+    public static JSONObject config;
+    private static Configuration configuration;
 
-    public Configuration() throws IOException, ParseException {
-        this.config = getConfig();
+    public static Configuration getInstance() {
+        if (configuration == null) {
+            configuration = new Configuration();
+            try {
+                config = getConfig();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return configuration;
+    }
+
+    private void init() throws IOException, ParseException {
     }
 
     @SuppressWarnings("unchecked")
-    public JSONObject getConfig() throws IOException, ParseException {
+    public static JSONObject getConfig() throws IOException, ParseException {
         JSONParser jsonParser = new JSONParser();
 
         FileReader reader = new FileReader("/Users/kprasad/Dropbox/Focus/DIST/kublai/src/main/resources/config.json");
@@ -29,5 +43,10 @@ public class Configuration {
     public String getFailOverMethod() {
         String failOverMethod = (String) this.config.get("failOverMethod");
         return failOverMethod;
+    }
+
+    public String getReplicationStrategy() {
+        String replicationStrategy = (String) this.config.get("replicationStrategy");
+        return replicationStrategy;
     }
 }

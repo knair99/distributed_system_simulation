@@ -7,9 +7,11 @@ networking/handlers/WriteRequestHandler.class
 networking/handlers/ResponseHandler.class
 cluster/management/ReplicaRegistrationHelper.class
 networking/handlers/ReadRequestHandler.class
+queue/AsyncReplicationEventProducer.class
 config/Configuration.class
 networking/WebServer.class
 networking/handlers/SyncRequestHandler.class
+queue/AsyncReplicationEventConsumer.class
 cluster/management/ReplicaRegistrationHelperImpl.class
 cluster/management/DataCenterRegistry.class
 networking/handlers/StatusRequestHandler.class

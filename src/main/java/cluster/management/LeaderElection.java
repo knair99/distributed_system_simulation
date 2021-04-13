@@ -1,5 +1,6 @@
 package cluster.management;
 
+import config.Configuration;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -15,7 +16,6 @@ public class LeaderElection implements Watcher {
 
     // config.Configuration data
     private static final String ELECTION_NAMESPACE = "/election";
-    private final String failOverMethod;
     private final ReplicaRegistrationHelper replicaRegistrationHelper;
 
     private ZooKeeper zooKeeper;
@@ -24,8 +24,7 @@ public class LeaderElection implements Watcher {
     private String currentReplicaName;
 
 
-    public LeaderElection(String failOverMethod, ZooKeeper zooKeeper, ReplicaRegistrationHelper replicaRegistrationHelper) {
-        this.failOverMethod = failOverMethod;
+    public LeaderElection(ZooKeeper zooKeeper, ReplicaRegistrationHelper replicaRegistrationHelper) {
         this.zooKeeper = zooKeeper;
         this.replicaRegistrationHelper = replicaRegistrationHelper;
     }
@@ -73,12 +72,13 @@ public class LeaderElection implements Watcher {
         String leaderNode = replicas.get(0);
         Stat watchedNodeExists = null;
         String watchedNodeName = null;
+        String failOverMethod = Configuration.getInstance().getFailOverMethod();
 
-        if (this.failOverMethod.equals("watch_leader")) {
+        if (failOverMethod.equals("watch_leader")) {
             watchedNodeExists = zooKeeper.exists(ELECTION_NAMESPACE + "/" + leaderNode, this);
             watchedNodeName = leaderNode;
             return watchedNodeExists;
-        } else if (this.failOverMethod.equals("watch_circle")) {
+        } else if (failOverMethod.equals("watch_circle")) {
             int predecessorIndex = Collections.binarySearch(replicas, this.currentReplicaName) - 1;
             String predecessorNodeName = replicas.get(predecessorIndex);
             watchedNodeName = predecessorNodeName;

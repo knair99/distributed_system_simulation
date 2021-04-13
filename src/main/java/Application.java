@@ -19,20 +19,20 @@ public class Application implements Watcher {
 
     private static LeaderElection leaderElection;
     private static ZooKeeper zooKeeper = null;
-    private static int DEFAULT_PORT = 9080;
+    private static int DEFAULT_PORT = 9081;
 
     public static void main(String[] args) throws IOException, KeeperException, InterruptedException, ParseException {
         Application application = new Application();
         zooKeeper = application.connectToZookeeper();
 
         // Begin by getting the configuration
-        Configuration configuration = new Configuration();
+        Configuration configuration = Configuration.getInstance();
         String failOverMethod = configuration.getFailOverMethod();
         System.out.println("Failover method chosen: " + failOverMethod);
 
         // Now register replicas with config setting for watching nodes
         int port = args.length == 1 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
-        registerReplicas(failOverMethod, port);
+        registerReplicas(port);
 
 
         // Now, setup the webserver to listen on the same port
@@ -56,7 +56,7 @@ public class Application implements Watcher {
         }
     }
 
-    private static void registerReplicas(String failOverMethod, int port) throws IOException, KeeperException,
+    private static void registerReplicas(int port) throws IOException, KeeperException,
             InterruptedException {
         // First prepare enough information for replicas to register to the data center
         DataCenterRegistry dataCenterRegistry = DataCenterRegistry.getInstance();
@@ -65,7 +65,7 @@ public class Application implements Watcher {
         ReplicaRegistrationHelper replicaRegistrationHelper = new ReplicaRegistrationHelperImpl(dataCenterRegistry, port);
 
         // Then connect to zookeeper
-        leaderElection = new LeaderElection(failOverMethod, zooKeeper, replicaRegistrationHelper);
+        leaderElection = new LeaderElection(zooKeeper, replicaRegistrationHelper);
 
         // Begin with creating replicas and electing a leader
         leaderElection.volunteerForLeadership();
