@@ -63,6 +63,7 @@ public class Application implements Watcher {
         dataCenterRegistry.init(zooKeeper);
 
         ReplicaRegistrationHelper replicaRegistrationHelper = new ReplicaRegistrationHelperImpl(dataCenterRegistry, port);
+        Configuration.setPort(port);
 
         // Then connect to zookeeper
         leaderElection = new LeaderElection(zooKeeper, replicaRegistrationHelper);

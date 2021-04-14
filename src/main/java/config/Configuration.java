@@ -10,6 +10,16 @@ import java.io.IOException;
 public class Configuration {
 
     public static boolean isLeader = false;
+
+    public static int getPort() {
+        return port;
+    }
+
+    public static void setPort(int port) {
+        Configuration.port = port;
+    }
+
+    public static int port;
     public static JSONObject config;
     private static Configuration configuration;
 

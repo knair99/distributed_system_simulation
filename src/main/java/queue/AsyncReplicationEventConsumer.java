@@ -1,5 +1,6 @@
 package queue;
 
+import config.Configuration;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -15,6 +16,8 @@ import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
@@ -23,13 +26,21 @@ import java.util.concurrent.ExecutionException;
 public class AsyncReplicationEventConsumer {
     // You can have multiple, comma separated bootstrap servers
     public static final String BOOTSTRAP_SERVERS = "localhost:9092";
-    public static final String CONSUMER_GROUP = "events-producer";
+    public static final String CONSUMER_GROUP_PREFIX = "events-producer";
     public static final String TOPIC = "sync-events";
 
 
     public static Consumer<Long, String> createKafkaConsumer() {
-        Properties properties = new Properties();
+        String currentServerAddress = "1.1.1.1";
+        try {
+            currentServerAddress = String.format("http://%s:%d", InetAddress.getLocalHost().getCanonicalHostName(),
+                    Configuration.getPort());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        String CONSUMER_GROUP = CONSUMER_GROUP_PREFIX + currentServerAddress;
 
+        Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
