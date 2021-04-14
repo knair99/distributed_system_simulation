@@ -9,6 +9,7 @@ import java.io.IOException;
 
 public class Configuration {
 
+    public static boolean isLeader = false;
     public static JSONObject config;
     private static Configuration configuration;
 
@@ -24,6 +25,14 @@ public class Configuration {
             }
         }
         return configuration;
+    }
+
+    public static boolean isIsLeader() {
+        return isLeader;
+    }
+
+    public static void setIsLeader(boolean isLeader) {
+        Configuration.isLeader = isLeader;
     }
 
     private void init() throws IOException, ParseException {

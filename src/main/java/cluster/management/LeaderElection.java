@@ -58,6 +58,7 @@ public class LeaderElection implements Watcher {
             if (leaderNode.equals(currentReplicaName)) {
                 System.out.println("I am the leader replica");
                 replicaRegistrationHelper.unRegisterLeaderFromCluster();
+                Configuration.setIsLeader(true);
                 return;
             } else {
                 // Followers announce the leader that they are watching

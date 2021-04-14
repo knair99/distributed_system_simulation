@@ -1,6 +1,7 @@
 package networking.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
+import config.Configuration;
 
 import java.io.IOException;
 
@@ -11,7 +12,7 @@ public class StatusRequestHandler {
             return;
         }
 
-        String responseMessage = "Replica is alive\n";
+        String responseMessage = Configuration.isIsLeader() ? "Leader" : "Follower";
         ResponseHandler.sendResponse(responseMessage.getBytes(), exchange);
     }
 }
