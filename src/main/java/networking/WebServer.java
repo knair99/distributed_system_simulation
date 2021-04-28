@@ -13,6 +13,7 @@ public class WebServer {
     private static final String READ_ENDPOINT = "/read";
     private static final String STATUS_ENDPOINT = "/status";
     private static final String SYNC_ENDPOINT = "/sync";
+    private static final String BULK_RANDOM_WRITE = "/bulkrandomwrite";
 
     private final int port;
     private HttpServer server;
@@ -33,11 +34,14 @@ public class WebServer {
         HttpContext writeContext = server.createContext(WRITE_ENDPOINT);
         HttpContext readContext = server.createContext(READ_ENDPOINT);
         HttpContext syncContext = server.createContext(SYNC_ENDPOINT);
+        HttpContext bulkRandomWriteContext = server.createContext(BULK_RANDOM_WRITE);
+
 
         statusContext.setHandler(StatusRequestHandler::handleStatusCheckRequest);
         writeContext.setHandler(exchange -> WriteRequestHandler.handleWriteRequest(WebServer.this, exchange));
         readContext.setHandler(exchange -> ReadRequestHandler.handleReadRequest(WebServer.this, exchange));
         syncContext.setHandler(exchange -> SyncRequestHandler.handleSyncRequest(WebServer.this, exchange));
+        bulkRandomWriteContext.setHandler(exchange -> RandomBulkWriteHandler.handleRandomBulkWrite(WebServer.this, exchange));
 
         server.setExecutor(Executors.newFixedThreadPool(8));
         server.start();
