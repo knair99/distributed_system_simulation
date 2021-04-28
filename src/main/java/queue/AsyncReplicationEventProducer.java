@@ -27,14 +27,14 @@ public class AsyncReplicationEventProducer {
         return new KafkaProducer<>(properties);
     }
 
-    public void publishMessages(int numberOfMessages, Producer<Long, String> kafkaProducer) throws ExecutionException, InterruptedException {
+    public void publishMessages(int numberOfMessages, Producer<Long, String> kafkaProducer, byte[] requestBytes) throws ExecutionException, InterruptedException {
         // Since we only have one partition now with a replication factor of 1
         int partition = 0;
 
         int i = 0;
         while (i < numberOfMessages) {
             long key = i;
-            String value = String.format("Async replication event %d", i);
+            String value = String.format(new String(requestBytes));
             long timeStamp = System.currentTimeMillis();
 
             // We can overload the ProducerRecord to remove the partition, and it will automatically hash range by key

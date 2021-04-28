@@ -3,18 +3,24 @@
 RUNBOOK
 ---------
 
+-----
 CICD
 -----
 To make a standalone deployable JAR file:
 mvn clean package
 
-To run this package:
+To run servers with this package:
 java -jar /Users/kprasad/Dropbox/Focus/DIST/kublai/target/leader.election-1.0-SNAPSHOT-jar-with-dependencies.jar 8081
 
 -----
-
 SERVERS:
 -----
+To run servers with this package:
+java -jar /Users/kprasad/Dropbox/Focus/DIST/kublai/target/leader.election-1.0-SNAPSHOT-jar-with-dependencies.jar 8081
+java -jar /Users/kprasad/Dropbox/Focus/DIST/kublai/target/leader.election-1.0-SNAPSHOT-jar-with-dependencies.jar 8082
+java -jar /Users/kprasad/Dropbox/Focus/DIST/kublai/target/leader.election-1.0-SNAPSHOT-jar-with-dependencies.jar 8083
+java -jar /Users/kprasad/Dropbox/Focus/DIST/kublai/target/leader.election-1.0-SNAPSHOT-jar-with-dependencies.jar 8084
+
 pinging replica directly for status:
 curl localhost:9080/status  
 
@@ -27,53 +33,55 @@ curl -X POST -d "dataLeader" localhost/write
 write bulk data to database with offset:
 	curl -X POST -d "200" localhost/bulkrandomwrite
 
-when deploying a data center as an image
------
+when deploying a data center as an image:
 copy the whole project directory into the webapp folder + docker compose up --build
 
+-----
 ZOOKEEPER:
 -----
-./bin/zkServer.sh start 
-./bin/zkServer.sh status
-./bin/zkServer.sh stop
+/Users/kprasad/Dropbox/Focus/DIST/zookeeper/bin/zkServer.sh start 
+/Users/kprasad/Dropbox/Focus/DIST/zookeeper/bin/zkServer.sh status
+/Users/kprasad/Dropbox/Focus/DIST/zookeeper/bin/zkServer.sh stop
 
 client:
-./bin/zkCli.sh
+/Users/kprasad/Dropbox/Focus/DIST/zookeeper/bin/zkCli.sh
 	list all znodes:
 		ls /l  
 	create a znode:
-		create /elections "" 
+		create /election "" 
 	delete a znode:
-		delete /elections
+		delete /election
 
+-----
 KAFKA:
 -----
-bin/.kafka-server-start.sh config/server.properties
+/Users/kprasad/Dropbox/Focus/DIST/kafka/bin/.kafka-server-start.sh config/server.properties
 (do one for each server, with its own server.properties)
 
 creating a topic and setting replication:
-bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic events
+/Users/kprasad/Dropbox/Focus/DIST/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic events
 
 listing all topics:
-bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+/Users/kprasad/Dropbox/Focus/DIST/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9092
 
 getting more info on topic:
-bin/kafka-topics.sh --describe --bootstrap-server localhost:9092 --topic events
+/Users/kprasad/Dropbox/Focus/DIST/kafka/bin/kafka-topics.sh --describe --bootstrap-server localhost:9092 --topic events
 
 
 listing messages in 'events' topic with test consumer:
-bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic events --from-beginning
+/Users/kprasad/Dropbox/Focus/DIST/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic events --from-beginning
 
 putting messages in 'events' topic with test producer:
-bin/kafka-console-producer.sh --broker-list localhost:9092 --topic events
+/Users/kprasad/Dropbox/Focus/DIST/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic events
 
 
+-----
 MONGODB:
--------
+-----
 
-configuring replica sets:
+Configuring replica sets:
 
-
+---
 mongod:
 ---
 0. Starting clean:
@@ -91,7 +99,9 @@ rm -rf /usr/local/var/mongodb/config-set-0-0
 rm -rf /usr/local/var/mongodb/config-set-0-1
 rm -rf /usr/local/var/mongodb/config-set-0-2
 
+---
 A. To start a replica set:
+---
 
 1. Create the directories for each replica:
 mkdir -p /usr/local/var/mongodb/rep-set-0-0
@@ -139,8 +149,8 @@ members: [
 rs.status() 
 
 ---
-
 B. To convert replica set to a sharded setup: https://docs.mongodb.com/manual/tutorial/convert-replica-set-to-replicated-shard-cluster/ 
+---
 
 1. Determine which one is primary
 
@@ -150,8 +160,10 @@ mongod --replSet rep-set-0 --shardsvr --port 27017 -bind_ip 127.0.0.1 --dbpath /
 mongod --replSet rep-set-0 --shardsvr --port 27019 -bind_ip 127.0.0.1 --dbpath /usr/local/var/mongodb/rep-set-0-2 --oplogSize 128
 mongod --replSet rep-set-0 --shardsvr --port 27020 -bind_ip 127.0.0.1 --dbpath /usr/local/var/mongodb/rep-set-0-3 --oplogSize 128
 
-3. Now from a client connected to primary, step down: rs.stepDown()
-now restart that one too as a shardsvr:
+3. Now from a client connected to primary, step down: 
+rs.stepDown()
+
+Now restart that one too as a shardsvr:
 mongod --replSet rep-set-0 --shardsvr --port 27018 -bind_ip 127.0.0.1 --dbpath /usr/local/var/mongodb/rep-set-0-1 --oplogSize 128
 
 4. Start three config servers:
@@ -196,9 +208,14 @@ mongo 127.0.0.1:29017/admin
 
 8. Add shards for the replication set:
 sh.addShard("rep-set-0/127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019,127.0.0.1:27020")
+sh.addShard("127.0.0.1:27017")
+sh.addShard("127.0.0.1:27018")
+sh.addShard("127.0.0.1:27019")
+sh.addShard("127.0.0.1:27020")
 
 
-	9. OPTIONAL 9-12 : At this point, we have only one shard, with 4 servers for replication. Now, we need another shard, again with a replication set of 4 servers
+	9. OPTIONAL 9-12 : At this point, we have only one shard, with 4 servers for replication. 
+	Now, we need another shard, again with a replication set of 4 servers
 
 	10. To add replica set two, follow the same steps fropm 1-4
 
@@ -240,7 +257,7 @@ sh.addShard("rep-set-0/127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019,127.0.0.1
 	12. Now, add the second shard in mongos:
 	sh.addShard("rep-set-1/127.0.0.1:26017,127.0.0.1:26018,127.0.0.1:26019,127.0.0.1:26020")
 
-	--- and that failed -- time to test things out
+	--- and that failed -- you can only have shards added to servers started with --shardsvr flag
 
 Now, do all the commands down from here on mongos not mongo:
 
@@ -249,7 +266,7 @@ use config
 db.settings.save({ _id:"chunksize", value: 1 })
 
 14. Get shard status:
-sh.shatus()
+sh.status()
 
 15. To actually shard a table/document:
 use testdb
@@ -264,10 +281,21 @@ db.data.createIndex({name : 1})
 	15.b. For actually sharding:
 sh.shardCollection("testdb.data",{name: 1})
 
+16. To remove a shard:
+db.adminCommand({ removeShard : "rep-set-0"})
+
+17. To drop all collections in a DB:
+db.getCollectionNames().forEach(function(x){db[x].drop()})
 
 
+-----
 HAPROXY:
--------
+-----
+Start haproxy:
+haproxy -f haproxy.cfg
+
+Configuration:
+---
 for single leader setup:
 frontend http-in
     bind *:80

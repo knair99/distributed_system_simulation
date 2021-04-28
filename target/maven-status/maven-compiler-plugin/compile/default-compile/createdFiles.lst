@@ -14,6 +14,7 @@ config/Configuration.class
 networking/WebServer.class
 networking/handlers/SyncRequestHandler.class
 queue/AsyncReplicationEventConsumer.class
+networking/database/DatabaseHelper.class
 cluster/management/ReplicaRegistrationHelperImpl.class
 cluster/management/DataCenterRegistry.class
 networking/handlers/StatusRequestHandler.class

@@ -24,13 +24,13 @@ public class SyncCoordinator {
         }
     }
 
-    public void alertAllFollowersAsync() {
+    public void alertAllFollowersAsync(byte[] requestBytes) {
 
         AsyncReplicationEventProducer asyncReplicationEventProducer = new AsyncReplicationEventProducer();
         Producer<Long, String> kafkaProducer =
                 asyncReplicationEventProducer.createKafkaProducer(AsyncReplicationEventProducer.BOOTSTRAP_SERVERS);
         try {
-            asyncReplicationEventProducer.publishMessages(1, kafkaProducer);
+            asyncReplicationEventProducer.publishMessages(1, kafkaProducer, requestBytes);
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
