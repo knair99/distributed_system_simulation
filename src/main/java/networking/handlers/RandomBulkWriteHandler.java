@@ -1,6 +1,5 @@
 package networking.handlers;
 
-import com.mongodb.client.MongoDatabase;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import networking.WebServer;
@@ -12,9 +11,6 @@ import java.util.Arrays;
 public class RandomBulkWriteHandler {
 
     public static final int NUMBER_OF_WRITES = 10000;
-    private static final String MONGO_DB_URL = "mongodb://127.0.0.1:29017"; // IP Address of the "mongos" router
-    private static final String DB_NAME = "testdb";
-    private static final String COLLECTION_NAME = "data";
 
     public static void handleRandomBulkWrite(WebServer webServer, HttpExchange exchange) throws IOException {
 
@@ -45,9 +41,8 @@ public class RandomBulkWriteHandler {
     }
 
     private static byte[] writeBulkRandomDataToDatabase(byte[] requestBytes) {
-        MongoDatabase mongoDatabase = DatabaseHelper.connectToMongoDB(MONGO_DB_URL, DB_NAME);
         String offset = new String(requestBytes);
-        DatabaseHelper.generateBulkData(NUMBER_OF_WRITES, mongoDatabase, COLLECTION_NAME, offset);
+        DatabaseHelper.generateBulkData(NUMBER_OF_WRITES, offset);
         return String.format("Generated bulk data!").getBytes();
     }
 

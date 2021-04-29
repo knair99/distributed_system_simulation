@@ -19,7 +19,7 @@ public class Application implements Watcher {
 
     private static LeaderElection leaderElection;
     private static ZooKeeper zooKeeper = null;
-    private static int DEFAULT_PORT = 9081;
+    private static final int DEFAULT_PORT = 9081;
 
     public static void main(String[] args) throws IOException, KeeperException, InterruptedException, ParseException {
         Application application = new Application();
@@ -44,18 +44,6 @@ public class Application implements Watcher {
         application.close();
     }
 
-    private void close() throws InterruptedException {
-        this.zooKeeper.close();
-    }
-
-    // Now we need to wait on background threads for zookeeper to do its job
-    // Zookeeper will notifyALL later to us
-    private void run() throws InterruptedException {
-        synchronized (zooKeeper) {
-            this.zooKeeper.wait();
-        }
-    }
-
     private static void registerReplicas(int port) throws IOException, KeeperException,
             InterruptedException {
         // First prepare enough information for replicas to register to the data center
@@ -74,9 +62,21 @@ public class Application implements Watcher {
 
     }
 
+    private void close() throws InterruptedException {
+        zooKeeper.close();
+    }
+
+    // Now we need to wait on background threads for zookeeper to do its job
+    // Zookeeper will notifyALL later to us
+    private void run() throws InterruptedException {
+        synchronized (zooKeeper) {
+            zooKeeper.wait();
+        }
+    }
+
     public ZooKeeper connectToZookeeper() throws IOException {
-        this.zooKeeper = new ZooKeeper(ZOOKEEPER_ADDRESS, SESSION_TIMEOUT, this);
-        return this.zooKeeper;
+        zooKeeper = new ZooKeeper(ZOOKEEPER_ADDRESS, SESSION_TIMEOUT, this);
+        return zooKeeper;
     }
 
     @Override
@@ -86,9 +86,9 @@ public class Application implements Watcher {
                 if (watchedEvent.getState() == Event.KeeperState.SyncConnected) {
                     System.out.println("Success: Connected to zookeeper!");
                 } else {
-                    synchronized (this.zooKeeper) {
+                    synchronized (zooKeeper) {
                         System.out.println("Disconnected from zookeeper!");
-                        this.zooKeeper.notifyAll();
+                        zooKeeper.notifyAll();
                     }
                 }
                 break;

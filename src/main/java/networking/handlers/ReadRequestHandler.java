@@ -3,15 +3,15 @@ package networking.handlers;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import networking.WebServer;
+import networking.database.DatabaseHelper;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 public class ReadRequestHandler {
 
-
     public static void handleReadRequest(WebServer webServer, HttpExchange exchange) throws IOException {
-        if (!exchange.getRequestMethod().equalsIgnoreCase("post")) {
+        if (!exchange.getRequestMethod().equalsIgnoreCase("get")) {
             exchange.close();
             return;
         }
@@ -23,13 +23,9 @@ public class ReadRequestHandler {
             return;
         }
 
-        boolean isDebugMode = false;
-        if (headers.containsKey("X-Debug") && headers.get("X-Debug").get(0).equalsIgnoreCase("true")) {
-            isDebugMode = true;
-        }
+        boolean isDebugMode = headers.containsKey("X-Debug") && headers.get("X-Debug").get(0).equalsIgnoreCase("true");
 
         long startTime = System.nanoTime();
-
         byte[] requestBytes = exchange.getRequestBody().readAllBytes();
         byte[] responseBytes = getData(requestBytes);
         long finishTime = System.nanoTime();
@@ -45,7 +41,7 @@ public class ReadRequestHandler {
     // TODO: Read from MongoDB, Identify self
     static byte[] getData(byte[] requestBytes) {
         String bodyString = new String(requestBytes);
-
-        return String.format("Data read:").getBytes();
+        String data = DatabaseHelper.readDataFromDatabase(bodyString);
+        return String.format("Data read: " + data).getBytes();
     }
 }

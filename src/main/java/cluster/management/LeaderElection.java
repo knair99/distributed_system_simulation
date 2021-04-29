@@ -20,7 +20,7 @@ public class LeaderElection implements Watcher {
     private static final String ELECTION_NAMESPACE = "/election";
     private final ReplicaRegistrationHelper replicaRegistrationHelper;
 
-    private ZooKeeper zooKeeper;
+    private final ZooKeeper zooKeeper;
 
     // Current node information
     private String currentReplicaName;

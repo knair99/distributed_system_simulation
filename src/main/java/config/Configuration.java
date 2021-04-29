@@ -10,6 +10,9 @@ import java.io.IOException;
 public class Configuration {
 
     public static boolean isLeader = false;
+    public static int port;
+    public static JSONObject config;
+    private static Configuration configuration;
 
     public static int getPort() {
         return port;
@@ -18,10 +21,6 @@ public class Configuration {
     public static void setPort(int port) {
         Configuration.port = port;
     }
-
-    public static int port;
-    public static JSONObject config;
-    private static Configuration configuration;
 
     public static Configuration getInstance() {
         if (configuration == null) {
@@ -45,9 +44,6 @@ public class Configuration {
         Configuration.isLeader = isLeader;
     }
 
-    private void init() throws IOException, ParseException {
-    }
-
     @SuppressWarnings("unchecked")
     public static JSONObject getConfig() throws IOException, ParseException {
         JSONParser jsonParser = new JSONParser();
@@ -59,13 +55,16 @@ public class Configuration {
 
     }
 
+    private void init() throws IOException, ParseException {
+    }
+
     public String getFailOverMethod() {
-        String failOverMethod = (String) this.config.get("failOverMethod");
+        String failOverMethod = (String) config.get("failOverMethod");
         return failOverMethod;
     }
 
     public String getReplicationStrategy() {
-        String replicationStrategy = (String) this.config.get("replicationStrategy");
+        String replicationStrategy = (String) config.get("replicationStrategy");
         return replicationStrategy;
     }
 }

@@ -16,17 +16,12 @@ public class DataCenterRegistry implements Watcher {
     private static final String DATA_CENTER_REGISTRY_NODE = "/data_center_registry";
 
     private static ZooKeeper zooKeeper;
+    private static DataCenterRegistry dataCenterRegistryInstance = null;
     private String currentReplicaInfoNode = null;
     private List<String> allRegisteredReplicaAddresses = null;
-    private static DataCenterRegistry dataCenterRegistryInstance = null;
 
-    public void init(ZooKeeper zooKeeper) {
-        this.zooKeeper = zooKeeper;
-        createDataCenterRegistry();
-    }
-
-    public static DataCenterRegistry getInstance(){
-        if(dataCenterRegistryInstance == null){
+    public static DataCenterRegistry getInstance() {
+        if (dataCenterRegistryInstance == null) {
             dataCenterRegistryInstance = new DataCenterRegistry();
             return dataCenterRegistryInstance;
         }
@@ -44,6 +39,11 @@ public class DataCenterRegistry implements Watcher {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void init(ZooKeeper zooKeeper) {
+        DataCenterRegistry.zooKeeper = zooKeeper;
+        createDataCenterRegistry();
     }
 
     // Called whenever a follower node needs to join a cluster

@@ -8,7 +8,7 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 
 public class WebClient {
-    private HttpClient client;
+    private final HttpClient client;
 
     public WebClient() {
         this.client = HttpClient.newBuilder()

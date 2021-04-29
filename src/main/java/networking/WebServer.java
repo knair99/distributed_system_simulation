@@ -2,11 +2,15 @@ package networking;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
+import networking.handlers.RandomBulkWriteHandler;
+import networking.handlers.ReadRequestHandler;
+import networking.handlers.StatusRequestHandler;
+import networking.handlers.SyncRequestHandler;
+import networking.handlers.WriteRequestHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
-import networking.handlers.*;
 
 public class WebServer {
     private static final String WRITE_ENDPOINT = "/write";
