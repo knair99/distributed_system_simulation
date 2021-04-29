@@ -1,7 +1,7 @@
-package queue;
+package kafka;
 
 import config.Configuration;
-import networking.database.DatabaseHelper;
+import database.DatabaseHelperImpl;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -58,7 +58,7 @@ public class AsyncReplicationEventConsumer {
                         record.key(), record.value(), record.partition(), record.offset()));
 
                 // Now write to the database replica
-                DatabaseHelper.writeDataToDatabase(record.value());
+                DatabaseHelperImpl.writeDataToDatabase(record.value());
             }
 
             // do something with the records

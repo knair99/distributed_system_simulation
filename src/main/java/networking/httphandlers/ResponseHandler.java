@@ -1,4 +1,4 @@
-package networking.handlers;
+package networking.httphandlers;
 
 import com.sun.net.httpserver.HttpExchange;
 

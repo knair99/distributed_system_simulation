@@ -1,4 +1,4 @@
-package networking.database;
+package database;
 
 import com.mongodb.client.MongoDatabase;
 import config.Configuration;
@@ -13,7 +13,7 @@ public class DatabaseInstance {
     private final MongoDatabase database;
 
     private DatabaseInstance() {
-        database = DatabaseHelper.connectToMongoDB(MONGO_DB_URL, DB_NAME);
+        database = DatabaseHelperImpl.connectToMongoDB(MONGO_DB_URL, DB_NAME);
     }
 
     public static DatabaseInstance getInstance() {

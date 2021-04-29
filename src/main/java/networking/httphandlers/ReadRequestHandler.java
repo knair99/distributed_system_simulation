@@ -1,9 +1,9 @@
-package networking.handlers;
+package networking.httphandlers;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import networking.WebServer;
-import networking.database.DatabaseHelper;
+import database.DatabaseHelperImpl;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ public class ReadRequestHandler {
     // TODO: Read from MongoDB, Identify self
     static byte[] getData(byte[] requestBytes) {
         String bodyString = new String(requestBytes);
-        String data = DatabaseHelper.readDataFromDatabase(bodyString);
+        String data = DatabaseHelperImpl.readDataFromDatabase(bodyString);
         return String.format("Data read: " + data).getBytes();
     }
 }

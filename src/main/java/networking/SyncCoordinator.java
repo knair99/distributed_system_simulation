@@ -2,7 +2,7 @@ package networking;
 
 import cluster.management.DataCenterRegistry;
 import org.apache.kafka.clients.producer.Producer;
-import queue.AsyncReplicationEventProducer;
+import kafka.AsyncReplicationEventProducer;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

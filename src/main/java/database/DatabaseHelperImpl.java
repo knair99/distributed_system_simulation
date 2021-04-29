@@ -1,4 +1,4 @@
-package networking.database;
+package database;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -9,8 +9,7 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseHelper {
-
+public class DatabaseHelperImpl implements DatabaseHelper {
 
     public static MongoDatabase connectToMongoDB(String url, String dbName) {
         MongoClient mongoClient = new MongoClient(new MongoClientURI(url));

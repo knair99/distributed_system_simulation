@@ -1,10 +1,10 @@
-package networking.handlers;
+package networking.httphandlers;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import config.Configuration;
 import networking.WebServer;
-import networking.database.DatabaseHelper;
+import database.DatabaseHelperImpl;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -43,7 +43,7 @@ public class SyncRequestHandler {
         String bodyString = new String(requestBytes);
 
         System.out.println("Syncing from leader finished");
-        DatabaseHelper.writeDataToDatabase(bodyString);
+        DatabaseHelperImpl.writeDataToDatabase(bodyString);
         System.out.println("Replication complete");
 
         return String.format("Ack from follower: " + Configuration.getPort()).getBytes(StandardCharsets.UTF_8);

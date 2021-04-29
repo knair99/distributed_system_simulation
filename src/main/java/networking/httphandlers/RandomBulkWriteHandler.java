@@ -1,9 +1,9 @@
-package networking.handlers;
+package networking.httphandlers;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import networking.WebServer;
-import networking.database.DatabaseHelper;
+import database.DatabaseHelperImpl;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,7 +42,7 @@ public class RandomBulkWriteHandler {
 
     private static byte[] writeBulkRandomDataToDatabase(byte[] requestBytes) {
         String offset = new String(requestBytes);
-        DatabaseHelper.generateBulkData(NUMBER_OF_WRITES, offset);
+        DatabaseHelperImpl.generateBulkData(NUMBER_OF_WRITES, offset);
         return String.format("Generated bulk data!").getBytes();
     }
 

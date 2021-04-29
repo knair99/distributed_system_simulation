@@ -1,11 +1,11 @@
-package networking.handlers;
+package networking.httphandlers;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import config.Configuration;
 import networking.SyncCoordinator;
 import networking.WebServer;
-import networking.database.DatabaseHelper;
+import database.DatabaseHelperImpl;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -64,7 +64,7 @@ public class WriteRequestHandler {
     // TODO: Persist into MongoDB, Identify self
     static byte[] saveData(byte[] requestBytes) throws UnknownHostException {
         String bodyString = new String(requestBytes);
-        DatabaseHelper.writeDataToDatabase(bodyString);
+        DatabaseHelperImpl.writeDataToDatabase(bodyString);
         return String.format("Data is saved").getBytes();
     }
 }

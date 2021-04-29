@@ -9,7 +9,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import queue.AsyncReplicationEventConsumer;
+import kafka.AsyncReplicationEventConsumer;
 
 import java.util.Collections;
 import java.util.List;

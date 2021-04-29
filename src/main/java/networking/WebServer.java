@@ -2,11 +2,11 @@ package networking;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
-import networking.handlers.RandomBulkWriteHandler;
-import networking.handlers.ReadRequestHandler;
-import networking.handlers.StatusRequestHandler;
-import networking.handlers.SyncRequestHandler;
-import networking.handlers.WriteRequestHandler;
+import networking.httphandlers.RandomBulkWriteHandler;
+import networking.httphandlers.ReadRequestHandler;
+import networking.httphandlers.StatusRequestHandler;
+import networking.httphandlers.SyncRequestHandler;
+import networking.httphandlers.WriteRequestHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
