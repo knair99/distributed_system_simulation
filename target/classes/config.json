@@ -1,6 +1,0 @@
-{
-  "failOverMethod": "watch_circle",
-  "__altFailoverMethods__": "watch_leader, watch_circle",
-  "replicationStrategy": "async",
-  "__altReplicationStrategies": "sync, async"
-}
